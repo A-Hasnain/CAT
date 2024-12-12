@@ -3,26 +3,173 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Meowsterpiece Gallery 🐱</title>
-  <link rel="stylesheet" href="styles.css">
+  <title>Meowsterpiece Gallery</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+      color: #333;
+    }
+    .App {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      justify-content: center;
+    }
+    .card {
+      background-color: #fff;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      padding: 20px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+      color: #4a4a4a;
+    }
+    .tagline {
+      font-size: 1rem;
+      color: #666;
+      margin-bottom: 20px;
+      font-style: italic;
+    }
+    .cat-container img {
+      width: 100%;
+      max-width: 350px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+    .image-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    button, .download-button {
+      padding: 10px 15px;
+      font-size: 14px;
+      font-weight: bold;
+      color: white;
+      background: #ff6b6b;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    button:hover, .download-button:hover {
+      background: #e63946;
+      transform: scale(1.1);
+    }
+    .fetch-button {
+      margin-top: 10px;
+    }
+    footer {
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: #666;
+    }
+    footer a {
+      color: #ff6b6b;
+      text-decoration: none;
+    }
+    footer a:hover {
+      text-decoration: underline;
+    }
+    .loading {
+      font-size: 16px;
+      color: #888;
+      margin: 20px 0;
+      font-style: italic;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0% {
+        opacity: 0.5;
+      }
+      50% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0.5;
+      }
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Meowsterpiece Gallery 🐱</h1>
-    <p class="tagline">“Bringing pawsitive vibes, one cat at a time!”</p>
+  <div id="root"></div>
 
-    <!-- Image Container -->
-    <div id="cat-container">
-      <p class="loading">Loading...</p>
-    </div>
+  <script type="text/babel">
+    function App() {
+      const [catImage, setCatImage] = React.useState(null);
 
-    <!-- Button -->
-    <button id="new-cat-button">Get Cats</button>
-  </div>
+      // Fetch a random cat image
+      const fetchCatImage = async () => {
+        try {
+          const response = await fetch("https://api.thecatapi.com/v1/images/search");
+          const data = await response.json();
+          setCatImage(data[0].url);
+        } catch (error) {
+          console.error("Error fetching cat image:", error);
+        }
+      };
 
-  <footer>
-    Powered by <a href="https://thecatapi.com/" target="_blank">The Cat API</a>
-  </footer>
-  <script src="script.js"></script>
+      // Fetch a cat image when the component loads
+      React.useEffect(() => {
+        fetchCatImage();
+      }, []);
+
+      // Copy image URL to clipboard
+      const copyToClipboard = (url) => {
+        navigator.clipboard.writeText(url).then(() => {
+          alert("Image URL copied to clipboard!");
+        });
+      };
+
+      return (
+        <div className="App">
+          <div className="card">
+            <h1>Meowsterpiece Gallery 🐱</h1>
+            <p className="tagline">“Bringing pawsitive vibes, one cat at a time!”</p>
+            <div className="cat-container">
+              {catImage ? (
+                <div>
+                  <img src={catImage} alt="Random Cat" className="cat-image" />
+                  <div className="image-actions">
+                    <button onClick={() => copyToClipboard(catImage)}>Copy URL</button>
+                    <a href={catImage} download className="download-button">
+                      Download
+                    </a>
+                  </div>
+                </div>
+              ) : (
+                <p className="loading">Loading...</p>
+              )}
+            </div>
+            <button onClick={fetchCatImage} className="fetch-button">
+              Get Cats
+            </button>
+          </div>
+          <footer>
+            Powered by <a href="https://thecatapi.com/" target="_blank" rel="noopener noreferrer">The Cat API</a>
+          </footer>
+        </div>
+      );
+    }
+
+    ReactDOM.render(<App />, document.getElementById("root"));
+  </script>
 </body>
 </html>
